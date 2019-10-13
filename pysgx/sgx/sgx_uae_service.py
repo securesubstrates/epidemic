@@ -122,7 +122,7 @@ def sgx_get_quote_size(sig_rl=None):
 
 class qe_quote_info:
     def __init__(self, c_quote, qe_report=None):
-        self._qe_report = sgx_report(c_qe_report)
+        self._qe_report = sgx_report(qe_report)
         self._quote = sgx_quote(c_quote)
 
     def qe_report(self):

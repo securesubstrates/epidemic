@@ -47,6 +47,12 @@ class sgx_mac:
     def c_type(self):
         return self._c_type
 
+    def bytes(self):
+        return bytearray(self.c_type())
+
+    def __repr__(self):
+        return hexlify(self.bytes()).decode('utf-8')
+
 # typedef struct _sgx_report_data_t
 # {
 #     uint8_t   d[SGX_REPORT_DATA_SIZE];
@@ -55,7 +61,6 @@ class sgx_mac:
 class c_sgx_report_data(Structure):
     _fields_ = [("d", \
                  c_ubyte * SGX_REPORT_DATA_SIZE)]
-
 
 class sgx_report_data:
     def __init__(self, c_val):
@@ -73,6 +78,9 @@ class sgx_report_data:
     def set_d(self, ba):
         for i in range(0, len(self._c_type.m)):
             self._c_type[i] = ba[i]
+
+    def __repr__(self):
+        return hexlify(self.d()).decode('utf-8')
 
 # typedef uint16_t            sgx_prod_id_t;
 
@@ -169,6 +177,43 @@ class sgx_report_body:
         assert isinstance(c_val, c_sgx_report_body)
         self._c_data = c_val
 
+    def c_data(self):
+        return self._c_data
+
+    def cpu_svn(self):
+        return sgx_cpu_svn(self.c_data().cpu_svn)
+
+    def misc_select(self):
+        return sgx_misc_select(self.c_data().misc_select)
+
+    def attributes(self):
+        return sgx_attributes(self.c_data().attributes)
+
+    def mrenclave(self):
+        return sgx_measurement(self.c_data().mr_enclave)
+
+    def mrsigner(self):
+        return sgx_measurement(self.c_data().mr_signer)
+
+    def isv_prod_id(self):
+        return self.c_data().isv_prod_id.value
+
+    def isv_svn(self):
+        return self.c_data().isv_svn.value
+
+    def report_data(self):
+        return sgx_report_data(self.c_data().report_data)
+
+    def __repr__(self):
+        return "{{mrenclave: {}, mrsigner: {}, report_data: {}, attributes: {}, cpu_svn: {}, isv_prod_id: {:x}, isv_svn: {:x}}}".format(
+            self.mrenclave(),
+            self.mrsigner(),
+            self.report_data(),
+            self.attributes(),
+            self.cpu_svn(),
+            self.isv_prod_id(),
+            self.isv_svn()
+        )
 
 # typedef struct _report_t                    /* 432 bytes */
 # {
@@ -190,10 +235,10 @@ class sgx_report:
         self._c_data = c_val
 
     def body(self):
-        return self._c_data.body
+        return sgx_report_body(self._c_data.body)
 
     def key_id(self):
-        return self._c_data.key_id
+        return sgx_key_id(self._c_data.key_id)
 
     def mac(self):
-        return self._c_data.mac    
+        return bytearray(self._c_data.mac)

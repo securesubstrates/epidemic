@@ -35,11 +35,18 @@ class sgx_cpu_svn:
         assert isinstance(c_val, c_sgx_cpu_svn)
         self._c_data = c_val
 
-    def svn(self):
+    def cpu_svn(self):
         return bytearray(self._c_data.svn)
 
+    def set_cpu_svn(self, ba):
+        assert isinstance(ba, bytearray)
+        assert len(ba) >= SGX_CPUSVN_SIZE
+        for i in range(SGX_CPUSVN_SIZE):
+            self._c_data.svn[i] = ba[i]
+        
+
     def __repr__(self):
-        return hexlify(self.svn()).decode('utf-8')
+        return hexlify(self.cpu_svn()).decode('utf-8')
 
 # typedef struct _sgx_key_id_t
 # {
@@ -56,6 +63,12 @@ class sgx_key_id:
 
     def id(self):
         return bytearray(self._c_data.id)
+
+    def set_id(self, ba):
+        assert isinstance(ba, bytearray)
+        assert len(ba) >= SGX_KEYID_SIZE
+        for i in range(SGX_KEYID_SIZE):
+            self._c_data.id[i] = ba[i]
 
     def __repr__(self):
         return hexlify(self.id()).decode('utf-8')
