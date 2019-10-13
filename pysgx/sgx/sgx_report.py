@@ -164,6 +164,11 @@ class c_sgx_report_body(Structure):
         , ("report_data", c_sgx_report_data)
         ]
 
+class sgx_report_body:
+    def __init__(self, c_val):
+        assert isinstance(c_val, c_sgx_report_body)
+        self._c_data = c_val
+
 
 # typedef struct _report_t                    /* 432 bytes */
 # {
@@ -178,3 +183,17 @@ class c_sgx_report(Structure):
         , ("key_id", c_sgx_key_id)
         , ("mac"   , c_sgx_mac)
     ]
+
+class sgx_report:
+    def __init__(self, c_val):
+        assert isinstance(c_val, c_sgx_report)
+        self._c_data = c_val
+
+    def body(self):
+        return self._c_data.body
+
+    def key_id(self):
+        return self._c_data.key_id
+
+    def mac(self):
+        return self._c_data.mac    

@@ -1,5 +1,6 @@
 from ctypes import c_ubyte, c_ushort, Structure
 from .sgx_attributes import *
+from binascii import hexlify
 
 # Key Name
 SGX_KEYSELECT_EINITOKEN=0x0000
@@ -29,6 +30,16 @@ c_sgx_isv_svn=c_ushort
 class c_sgx_cpu_svn(Structure):
     _fields_ = [("svn", c_ubyte * SGX_CPUSVN_SIZE)]
 
+class sgx_cpu_svn:
+    def __init__(self, c_val):
+        assert isinstance(c_val, c_sgx_cpu_svn)
+        self._c_data = c_val
+
+    def svn(self):
+        return bytearray(self._c_data.svn)
+
+    def __repr__(self):
+        return hexlify(self.svn()).decode('utf-8')
 
 # typedef struct _sgx_key_id_t
 # {
@@ -37,6 +48,18 @@ class c_sgx_cpu_svn(Structure):
 
 class c_sgx_key_id(Structure):
     _fields_ = [("id", c_ubyte * SGX_KEYID_SIZE)]
+
+class sgx_key_id:
+    def __init__(self, c_val):
+        assert isinstance(c_val, c_sgx_key_id)
+        self._c_data = c_val
+
+    def id(self):
+        return bytearray(self._c_data.id)
+
+    def __repr__(self):
+        return hexlify(self.id()).decode('utf-8')
+
 
 SGX_KEY_REQUEST_RESERVED2_BYTES=436
 
@@ -53,7 +76,7 @@ SGX_KEY_REQUEST_RESERVED2_BYTES=436
 #     uint8_t                         reserved2[SGX_KEY_REQUEST_RESERVED2_BYTES];
 # } sgx_key_request_t;
 
-class sgx_key_request(Structure):
+class c_sgx_key_request(Structure):
     _fields_ = [
         ("key_name", c_ushort )                # Identifies the key required
         , ("key_policy", c_ushort)             # Identifies which inputs should be used in the key derivation
