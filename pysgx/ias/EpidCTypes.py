@@ -1,7 +1,7 @@
 import ctypes
 import sys
 import argparse
-import binascii
+from binascii import hexlify
 
 MAX_PATH = 260
 PEK_MOD_SIZE = 384
@@ -87,11 +87,11 @@ class signed_pek(ctypes.Structure):
     ]
 
     def __repr__(self):
-        n = binascii.hexlify(self.n)
-        e = binascii.hexlify(self.e)
-        sha1_ne = binascii.hexlify(self.sha1_ne)
-        pek_signature = binascii.hexlify(self.pek_signature)
-        sha1_sign = binascii.hexlify(self.sha1_sign)
+        n = hexlify(self.n).decode('utf-8')
+        e = hexlify(self.e).decode('utf-8')
+        sha1_ne = hexlify(self.sha1_ne).decode('utf-8')
+        pek_signature = hexlify(self.pek_signature).decode('utf-8')
+        sha1_sign = hexlify(self.sha1_sign).decode('utf-8')
         return "signed_pek{{ n : {}, e : {}, sha1_ne : {}, pek_signature : {}, sha1_sign : {} }}".format(
             n, e, sha1_ne, pek_signature, sha1_sign
         )
@@ -127,7 +127,7 @@ class ppid(ctypes.Structure):
     ]
 
     def __repr__(self):
-        ppid = binascii.hexlify(self.ppid)
+        ppid = hexlify(self.ppid).decode('utf-8')
         return "ppid {{{}}}".format(ppid)
 
 
@@ -138,7 +138,7 @@ class fmsp(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "fmsp{{{}}}".format(binascii.hexlify(self.fmsp))
+        return "fmsp{{{}}}".format(hexlify(self.fmsp).decode('utf-8'))
 
 
 class psid(ctypes.Structure):
@@ -148,7 +148,7 @@ class psid(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "psid{{{}}}".format(binascii.hexlify(self.psid))
+        return "psid{{{}}}".format(hexlify(self.psid).decode('utf-8'))
 
 
 class sgx_cpu_svn(ctypes.Structure):
@@ -158,7 +158,7 @@ class sgx_cpu_svn(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "sgx_cpu_svn{{{}}}".format(binascii.hexlify(self.svn))
+        return "sgx_cpu_svn{{{}}}".format(hexlify(self.svn).decode('utf-8'))
 
 
 class psvn(ctypes.Structure):
@@ -168,7 +168,7 @@ class psvn(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "psvn{{ cpu_svn : {}, isv_svn : {}}}".format(binascii.hexlify(self.cpu_svn),
+        return "psvn{{ cpu_svn : {}, isv_svn : {}}}".format(hexlify(self.cpu_svn).decode('utf-8'),
                                                             self.isv_svn)
 
 
@@ -192,8 +192,8 @@ class G1ElemStr(ctypes.Structure):
 
     def __repr__(self):
         return "G1ElemStr{{x:{}, y:{}}}".format(
-            binascii.hexlify(self.x),
-            binascii.hexlify(self.y)
+            hexlify(self.x).decode('utf-8'),
+            hexlify(self.y).decode('utf-8')
         )
 
 
@@ -208,10 +208,10 @@ class G2ElemStr(ctypes.Structure):
 
     def __repr__(self):
         return "G2ElemStr{{x: [{},{}], y: [{}, {}] }}".format(
-            binascii.hexlify(self.x0),
-            binascii.hexlify(self.x1),
-            binascii.hexlify(self.y0),
-            binascii.hexlify(self.y1)
+            hexlify(self.x0).decode('utf-8'),
+            hexlify(self.x1).decode('utf-8'),
+            hexlify(self.y0).decode('utf-8'),
+            hexlify(self.y1).decode('utf-8')
         )
 
 
@@ -226,7 +226,7 @@ class GroupPubKey(ctypes.Structure):
 
     def __repr__(self):
         return "EpidGroupPubKey{{ gid : {}, h1 : {}, h2 : {}, w : {}}}".format(
-            binascii.hexlify(self.gid), self.h1, self.h2, self.w
+            hexlify(self.gid).decode('utf-8'), self.h1, self.h2, self.w
         )
 
 
@@ -241,8 +241,8 @@ class signed_epid_group_cert(ctypes.Structure):
 
     def __repr__(self):
         return "EPIDGroupCert{{version : {}, type : {}, group_pubkey : {}, ecdsa_sig : {}}}".format(
-            self.version, self.type, self.group_pub_key, binascii.hexlify(
-                self.ecdsa_signature)
+            self.version, self.type, self.group_pub_key, hexlify(
+                self.ecdsa_signature).decode('utf-8')
         )
 
 
@@ -260,15 +260,72 @@ class extended_epid_group_blob(ctypes.Structure):
     ]
 
     def __repr__(self):
-        epid_sk = binascii.hexlify(self.epid_sk)
-        pek_sk = binascii.hexlify(self.pek_sk)
-        qsdk_exp = binascii.hexlify(self.qsdk_exp)
-        qsdk_mod = binascii.hexlify(self.qsdk_mod)
-        sig = binascii.hexlify(self.signature)
+        epid_sk = hexlify(self.epid_sk).decode('utf-8')
+        pek_sk = hexlify(self.pek_sk).decode('utf-8')
+        qsdk_exp = hexlify(self.qsdk_exp).decode('utf-8')
+        qsdk_mod = hexlify(self.qsdk_mod).decode('utf-8')
+        sig = hexlify(self.signature).decode('utf-8')
         return "extended_epid_group{{format_id : {}, data_length : {}, xeid : {:x}, epid_sk : {}, pek_sk : {}, qsdk_exp : {}, qsdk_mod : {}, signature : {}}}".format(
             self.format_id, self.data_length, self.xeid,
             epid_sk, pek_sk, qsdk_exp, qsdk_mod, sig
         )
+
+
+class gen_endpoint_selection_output(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("xid", ctypes.c_uint8 * XID_SIZE),
+        ("selector_id", ctypes.c_uint8)
+    ]
+
+    def __repr__(self):
+        xid = hexlify(self.xid).decode('utf-8')
+        selector = "{:x}".format(self.selector_id)
+        return "endpoint_selection_output{{ xid : {}, selector_id: {} }}".format(
+            xid, selector
+            )
+
+
+class pve_status (Exception):
+    errors = [
+        "PVEC_SUCCESS",
+        "PVEC_PARAMETER_ERROR",
+        "PVEC_INSUFFICIENT_MEMORY_ERROR",
+        "PVEC_READ_RAND_ERROR",
+        "PVEC_SIGRL_INTEGRITY_CHECK_ERROR",
+        "PVEC_MALLOC_ERROR",
+        "PVEC_EPID_BLOB_ERROR",
+        "PVEC_SE_ERROR",
+        "PVEC_TCRYPTO_ERROR",
+        "PVEC_MSG_ERROR",
+        "PVEC_PEK_SIGN_ERROR",
+        "PVEC_XEGDSK_SIGN_ERROR",
+        "PVEC_INTEGER_OVERFLOW_ERROR",
+        "PVEC_SEAL_ERROR",
+        "PVEC_EPID_ERROR",
+        "PVEC_REVOKED_ERROR",
+        "PVEC_UNSUPPORTED_VERSION_ERROR",
+        "PVEC_INVALID_CPU_ISV_SVN",
+        "PVEC_INVALID_EPID_KEY",
+        "PVEC_UNEXPECTED_ERROR"]
+
+    def __init__(self, error, message = ""):
+        if error >= len(pve_status.errors):
+            self._ec = len(pve_status.errors) - 1
+        else:
+            self._ec = error
+
+        msg = pve_status.errors[self._ec]
+
+        if message == "":
+            msg = "{:x} => {}".format(error, msg)
+        else:
+            msg = "{:x} => {} : {}".format(error, msg, message)
+
+        super(pve_status, self).__init__(msg)
+
+    def errc(self):
+        return self._ec
 
 
 def arguments():
